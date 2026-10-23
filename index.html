@@ -53,20 +53,29 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 .top {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9;
-  background: var(--paper); border-bottom: 1px solid var(--line);
-  padding-block: 14px 0; margin-bottom: 24px;
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+  padding: 16px 0 0; margin-bottom: 26px;
 }
-.brand { display: flex; align-items: center; gap: 12px; }
-.brand-logo { width: 52px; height: 52px; flex: 0 0 52px; object-fit: contain; display: block; }
-.brand h1 { font-family: var(--f-display); font-size: 22px; line-height: 1.1; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
-.tabs { display: flex; gap: 4px; margin-top: 12px; overflow-x: auto; }
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; padding: 0 4px 14px; }
+.brand-logo { width: 58px; height: 58px; flex: 0 0 58px; object-fit: contain; display: block; border-radius: 14px; }
+.brand h1 { font-family: var(--f-display); font-size: clamp(20px, 2.4vw, 26px); line-height: 1.12; margin: 0; letter-spacing: -0.025em; text-wrap: balance; }
+.tabs {
+  display: flex; align-items: center; gap: 7px; margin-top: 0;
+  padding: 10px 4px 12px; overflow-x: auto; overscroll-behavior-x: contain;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
 .tab {
-  appearance: none; background: none; border: 0; border-bottom: 3px solid transparent;
-  padding: 10px 14px; font: 500 14px var(--f-body); color: var(--ink-2); cursor: pointer; white-space: nowrap;
+  appearance: none; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  gap: 5px; background: transparent; border: 1px solid transparent; border-radius: 10px;
+  padding: 10px 15px; font: 600 13px var(--f-body); color: var(--ink-2); cursor: pointer;
+  white-space: nowrap; transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
 }
-.tab:hover { color: var(--ink); }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
-.tab .n { font-family: var(--f-mono); font-size: 11px; background: var(--blank-bg); border-radius: 9px; padding: 1px 7px; margin-left: 6px; color: var(--ink-2); }
+.tab:hover { color: var(--ink); background: var(--surface); border-color: var(--line); }
+.tab[aria-selected="true"] { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 22%, transparent); }
+.tab .n { font-family: var(--f-mono); font-size: 10px; line-height: 1.5; background: color-mix(in srgb, var(--ink) 8%, transparent); border-radius: 999px; padding: 1px 6px; margin-left: 2px; color: inherit; }
+.tab[aria-selected="true"] .n { background: color-mix(in srgb, var(--accent-ink) 18%, transparent); }
 
 :focus-visible, .btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -109,7 +118,28 @@ textarea { resize: vertical; min-height: 110px; }
 .banner[hidden] { display: none; }
 
 /* Bolhas */
-.keygrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 6px 24px; }
+.keygrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--question-rows, 5), auto);
+  align-items: start;
+  gap: 6px 20px;
+  width: 100%;
+}
+.keygrid .qrow { min-width: 0; }
+.keygrid .qn { flex: 0 0 26px; }
+.keygrid .opts { flex-shrink: 0; }
+.keygrid .bub { flex-shrink: 0; }
+.keygrid .annul { flex-shrink: 0; }
+@media (max-width: 600px) {
+  .keygrid { gap: 6px 8px; }
+  .keygrid .qrow { gap: 4px; padding-inline: 2px; }
+  .keygrid .qn { flex-basis: 22px; font-size: 11px; }
+  .keygrid .opts { gap: 2px; }
+  .keygrid .bub { width: 25px; height: 25px; font-size: 10px; }
+  .keygrid .annul { font-size: 10px; padding: 3px 4px; }
+}
 .qrow { display: flex; align-items: center; gap: 8px; padding: 4px 4px; border-bottom: 1px dashed var(--line); min-width: 0; border-radius: 4px; }
 .qrow.flash { background: var(--warn-bg); }
 .qn { width: 26px; text-align: right; font-family: var(--f-mono); font-size: 13px; color: var(--ink-2); flex: none; }
@@ -181,36 +211,52 @@ tr.srow:hover td { background: var(--paper); }
 .help code, .sub code { font-family: var(--f-mono); background: var(--paper); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
 #toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 6px; font-size: 14px; z-index: 20; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: calc(100vw - 32px); }
 #toast.show { opacity: 1; }   
+/* Rodapé elegante, no fluxo da página e fora da impressão */
 .footer {
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 12px 14px;
-    background: transparent;
-    color: #93c5fd;
-    font-family: Arial, sans-serif;
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: min(980px, 100%);
+    margin: 34px auto 0;
+    padding: 18px 20px;
+    color: var(--ink-2);
+    font-family: var(--f-body);
     font-size: 13px;
     box-sizing: border-box;
-    z-index: 1000;
+    border-top: 1px solid var(--line);
+    background: linear-gradient(180deg, transparent, var(--surface));
+    text-align: center;
 }
-
-.footer p {
-    margin: 0;
+.footer p { margin: 0; }
+.footer .footer-brand {
+    color: var(--ink);
+    font-weight: 600;
+    letter-spacing: .02em;
 }
-
-/* Adaptação para celulares */
+.footer .footer-mark {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+    flex: 0 0 auto;
+}
 @media (max-width: 600px) {
-    .footer {
-        padding: 10px;
-        font-size: 12px;
-    }
+    .footer { margin-top: 24px; padding: 16px 10px; font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
 
 @media (max-width: 520px) {
-  .brand-logo { width: 44px; height: 44px; flex-basis: 44px; }
+  .top { padding-top: 10px; margin-bottom: 18px; }
+  .brand { gap: 10px; padding-bottom: 10px; }
+  .brand-logo { width: 46px; height: 46px; flex-basis: 46px; border-radius: 10px; }
   .brand h1 { font-size: 19px; }
+  .tabs { gap: 5px; padding: 8px 0 10px; }
+  .tab { padding: 9px 11px; font-size: 12px; border-radius: 9px; }
   .stat { border-left: 0; border-top: 1px solid var(--line); }
   .stat:first-child { border-top: 0; }
   .btn.big { flex: 1 1 100%; }
@@ -219,7 +265,7 @@ tr.srow:hover td { background: var(--paper); }
 
 @page { size: A4; margin: 0; }
 @media print {
-  body::before, .top, .banner, .card-tools, #toast, .panel:not(#panel-card), .noprint { display: none !important; }
+  body::before, .top, .banner, .card-tools, #toast, .footer, .panel:not(#panel-card), .noprint { display: none !important; }
   body { background: #fff; padding: 0; }
   .sheet-wrap { padding: 0; }
   .sheet-wrap svg { width: 210mm; max-width: none; height: 297mm; border: 0; box-shadow: none; margin: 0; }
@@ -767,6 +813,7 @@ function ringContrastAt(px, lay) {
   /* ---------- bolhas ---------- */
   function bubbleGrid(el, selected, opts) {
     var ex = state.exam, h = '';
+    el.style.setProperty('--question-rows', Math.ceil(ex.n / 2));
     for (var i = 0; i < ex.n; i++) {
       var sel = selected[i] || '';
       h += '<div class="qrow"><span class="qn">' + pad2(i + 1) + '</span><div class="opts">';
@@ -1169,7 +1216,8 @@ function ringContrastAt(px, lay) {
   window.scrollTo(0, 0);
 })();
 </script>
-<footer class="footer">
-    <p>© Prof. Lázaro Rytson</p>
+<footer class="footer" aria-label="Rodapé">
+    <span class="footer-mark" aria-hidden="true"></span>
+    <p><span class="footer-brand">© Prof. Lázaro Rytson</span> <span aria-hidden="true">·</span> Corretor de Gabaritos</p>
 </footer>
 </body></html>
